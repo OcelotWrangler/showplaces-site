@@ -1,3 +1,0 @@
-Multiple locations from app - http://localhost:3000/shared?origin=app&contentId=K1c3Him
-One location from app - http://localhost:3000/shared?origin=app&contentId=hoSS4cg
-One location from site - http://localhost:3000/shared?origin=site&name=Village%20Deli%20And%20Grill&label=raleigh-food&latitude=35.79099774976624&longitude=-78.66096705776238&streetAddress=500%20Daniels%20St&city=Raleigh&state=NC&postalCode=27605&country=United%20States

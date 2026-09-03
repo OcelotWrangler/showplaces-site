@@ -1,0 +1,156 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------
+   Palette
+   Taken from the iOS app icon: a deep navy ground (#12094E is the
+   app's Primary color) with the pin's cyan-to-spring-green gradient
+   as the only accent. The site is deliberately dark-only — the mark
+   is built on that navy and a light palette would fight it.
+   --------------------------------------------------------------- */
+
+:root {
+  --navy-deep: #05021c;
+  --navy: #12094e;
+
+  --cyan: #22c7ec;
+  --spring: #2ee6a8;
+
+  --background: #0a0533;
+  --foreground: #e9eef8;
+  --muted: #97a3c6;
+  --on-accent: #05021c;
+
+  --card: 255 255 255;
+  --card-opacity: 0.045;
+  --card-border: 160 190 235;
+  --card-border-opacity: 0.16;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-cyan-mark: var(--cyan);
+  --color-spring-mark: var(--spring);
+  --color-on-accent: var(--on-accent);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* The page ground: navy, lit from above by a faint aurora of the two accent
+   colors. Fixed so it does not scroll away on the longer legal pages. */
+.ground {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(
+      ellipse 70% 50% at 50% -8%,
+      rgb(34 199 236 / 0.18),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 55% 45% at 78% 8%,
+      rgb(46 230 168 / 0.1),
+      transparent 70%
+    ),
+    linear-gradient(to bottom, var(--navy) 0%, var(--background) 45%, var(--navy-deep) 100%);
+}
+
+/* Frosted panel used for cards, tiles and the map frame. */
+.surface {
+  background: rgb(var(--card) / var(--card-opacity));
+  border: 1px solid rgb(var(--card-border) / var(--card-border-opacity));
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+
+/* Accent text: the pin gradient, applied to type. */
+.accent-text {
+  background: linear-gradient(120deg, var(--cyan), var(--spring));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Solid pill button in the accent gradient. */
+.accent-button {
+  background: linear-gradient(120deg, var(--cyan), var(--spring));
+  color: var(--on-accent);
+  transition:
+    filter 150ms ease,
+    transform 150ms ease;
+}
+
+.accent-button:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+/* ---------------------------------------------------------------
+   Entrance animation
+   Each element rises and fades in, staggered by a --rise-delay set
+   at the call site. Held still under prefers-reduced-motion.
+   --------------------------------------------------------------- */
+
+.rise {
+  animation: rise 700ms cubic-bezier(0.22, 0.68, 0.35, 1) both;
+  animation-delay: var(--rise-delay, 0ms);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* The mark's glow breathes very slowly behind the pin. */
+.pin-glow {
+  animation: pin-glow 6s ease-in-out infinite;
+}
+
+@keyframes pin-glow {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .pin-glow {
+    animation: none;
+  }
+
+  .rise {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------
+   MapKit
+   Apple renders the map into a child div; these keep it filling the
+   frame and stop its own focus ring fighting the rounded corners.
+   --------------------------------------------------------------- */
+
+.map-frame .mk-map-view {
+  width: 100%;
+  height: 100%;
+}
