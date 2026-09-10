@@ -7,6 +7,18 @@ frontend:
         - npm ci
     build:
       commands:
+        # Amplify console environment variables reach the BUILD container but are
+        # deliberately withheld from the SSR compute runtime, so a server component
+        # reading process.env at request time sees nothing. Writing them into
+        # .env.production is AWS's documented fix.
+        # https://docs.aws.amazon.com/amplify/latest/userguide/ssr-environment-variables.html
+        #
+        # NEXT_PUBLIC_MAPKIT_TOKEN is inlined by Next at build time and so does not
+        # strictly need this, but it costs nothing and removes any doubt.
+        - "env | grep -E '^(NEXT_PUBLIC_[A-Z0-9_]*|API_BASE_URL)=' >> .env.production || true"
+        # Fail the build loudly rather than deploying a site whose map silently
+        # never appears. A renamed or missing variable is caught here.
+        - "grep -q '^NEXT_PUBLIC_MAPKIT_TOKEN=' .env.production || { echo 'FATAL: NEXT_PUBLIC_MAPKIT_TOKEN is not set - the map would fail silently in production'; exit 1; }"
         - npm run build
   artifacts:
     baseDirectory: .next

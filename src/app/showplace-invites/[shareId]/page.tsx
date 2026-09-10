@@ -8,7 +8,7 @@ import {
 import { PlaceCard } from "@/components/PlaceCard";
 import { fetchShowplaceInvite, isUuid } from "@/lib/api";
 import { addressSummary } from "@/lib/address";
-import { createMapKitToken } from "@/lib/mapkit-token";
+import { mapKitToken } from "@/lib/mapkit";
 import { describeShare } from "@/lib/share";
 
 /**
@@ -57,7 +57,6 @@ export default async function ShowplaceInvitePage({
 
   const { showplace, shareType, accessLevel } = result.shared;
   const share = describeShare(shareType, accessLevel);
-  const token = await mapKitTokenOrNull();
 
   return (
     <InviteShell>
@@ -67,10 +66,10 @@ export default async function ShowplaceInvitePage({
       </h1>
       <p className="mt-2 max-w-xl leading-relaxed text-muted">{share.blurb}</p>
 
-      {token ? (
+      {mapKitToken ? (
         <div className="mt-7 h-[320px] sm:h-[400px]">
           <InviteMap
-            token={token}
+            token={mapKitToken}
             pins={[
               {
                 id: showplace.id,
@@ -91,17 +90,4 @@ export default async function ShowplaceInvitePage({
       <GetTheApp />
     </InviteShell>
   );
-}
-
-/**
- * A missing or malformed MapKit key should cost the visitor the map, not the
- * whole page — the address is the part they actually need.
- */
-async function mapKitTokenOrNull(): Promise<string | null> {
-  try {
-    return await createMapKitToken();
-  } catch (error) {
-    console.error("Could not mint a MapKit token:", error);
-    return null;
-  }
 }

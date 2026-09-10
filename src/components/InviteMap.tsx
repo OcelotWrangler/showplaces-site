@@ -1,6 +1,10 @@
 "use client";
 
-import { load, type Map as MapKitMap } from "@apple/mapkit-loader";
+import {
+  load,
+  type Map as MapKitMap,
+  type MapKitConfigurationErrorEvent,
+} from "@apple/mapkit-loader";
 import { useEffect, useRef, useState } from "react";
 
 export type MapPin = {
@@ -37,12 +41,28 @@ export function InviteMap({ token, pins }: { token: string; pins: MapPin[] }) {
     const mapPins = JSON.parse(pinsKey) as MapPin[];
     let map: MapKitMap | undefined;
     let cancelled = false;
+    let detachErrorListener: (() => void) | undefined;
 
     load({ token, libraries: ["map", "annotations"] })
       .then((mapkit) => {
         // Strict Mode mounts effects twice in development; bail if the cleanup
         // already ran so we never leave an orphaned map behind.
         if (cancelled) return;
+
+        // A rejected token does NOT reject load() — Apple validates it over the
+        // network and reports the failure on this event, which fires just after
+        // load() resolves. Without this the visitor gets a blank grey rectangle
+        // instead of an explanation, which is exactly how a revoked token, an
+        // expired one, or a missing domain in the token's Websites list would
+        // present. `status` is "Unauthorized" for auth failures.
+        const onMapKitError = (event: Event) => {
+          const { status } = event as MapKitConfigurationErrorEvent;
+          console.error(`[MapKit] configuration error: ${status}`);
+          if (!cancelled) setFailed(true);
+        };
+        mapkit.addEventListener("error", onMapKitError);
+        detachErrorListener = () =>
+          mapkit.removeEventListener("error", onMapKitError);
 
         map = new mapkit.Map(container, {
           colorScheme: mapkit.ColorScheme.Dark,
@@ -85,6 +105,7 @@ export function InviteMap({ token, pins }: { token: string; pins: MapPin[] }) {
 
     return () => {
       cancelled = true;
+      detachErrorListener?.();
       map?.destroy();
     };
   }, [token, pinsKey]);
