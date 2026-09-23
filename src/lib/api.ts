@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import type { InviteEnvelope, SharedGroup, SharedShowplace } from "./types";
 
 /**
@@ -43,8 +44,6 @@ async function fetchInvite<T>(
     };
   }
 
-  console.log(response);
-
   // The backend answers 404 for an invite that never existed and 410-ish
   // semantics via the envelope's errorMessage for one that has lapsed.
   if (response.status === 404) {
@@ -81,19 +80,17 @@ async function fetchInvite<T>(
     };
   }
 
-  console.log(envelope);
-
   return { status: "ok", shared: envelope.shared };
 }
 
-export function fetchShowplaceInvite(
-  shareId: string,
-): Promise<InviteResult<SharedShowplace>> {
-  return fetchInvite<SharedShowplace>("showplace-invites", shareId);
-}
+// Wrapped in `cache` because each invite page reads the invite twice per
+// request, once in `generateMetadata` and once to render.
+export const fetchShowplaceInvite = cache(
+  (shareId: string): Promise<InviteResult<SharedShowplace>> =>
+    fetchInvite<SharedShowplace>("showplace-invites", shareId),
+);
 
-export function fetchGroupInvite(
-  shareId: string,
-): Promise<InviteResult<SharedGroup>> {
-  return fetchInvite<SharedGroup>("group-invites", shareId);
-}
+export const fetchGroupInvite = cache(
+  (shareId: string): Promise<InviteResult<SharedGroup>> =>
+    fetchInvite<SharedGroup>("group-invites", shareId),
+);

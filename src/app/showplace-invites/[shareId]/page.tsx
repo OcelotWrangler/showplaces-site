@@ -8,8 +8,10 @@ import {
 import { PlaceCard } from "@/components/PlaceCard";
 import { fetchShowplaceInvite, isUuid } from "@/lib/api";
 import { addressSummary } from "@/lib/address";
+import { inviteMetadata } from "@/lib/invite-metadata";
 import { mapKitToken } from "@/lib/mapkit";
 import { describeShare } from "@/lib/share";
+import { site } from "@/lib/site";
 
 /**
  * Public preview for `showplaces.app/showplace-invites/{shareId}`, the link the
@@ -20,11 +22,28 @@ import { describeShare } from "@/lib/share";
 // Shares can be revoked at any time, so never prerender these at build time.
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Shared place",
-  // A share link is private; keep it out of search results even if one leaks.
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({
+  params,
+}: PageProps<"/showplace-invites/[shareId]">): Promise<Metadata> {
+  const { shareId } = await params;
+  const result = isUuid(shareId) ? await fetchShowplaceInvite(shareId) : null;
+  const path = `/showplace-invites/${shareId}`;
+
+  if (result?.status !== "ok") {
+    return inviteMetadata({
+      title: "Shared place",
+      description: site.description,
+      path,
+    });
+  }
+
+  const { showplace, shareType, accessLevel } = result.shared;
+  return inviteMetadata({
+    title: showplace.title,
+    description: `${describeShare(shareType, accessLevel).label} on ${site.name}.`,
+    path,
+  });
+}
 
 export default async function ShowplaceInvitePage({
   params,

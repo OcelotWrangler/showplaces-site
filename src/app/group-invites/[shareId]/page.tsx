@@ -6,7 +6,9 @@ import {
   InviteShell,
 } from "@/components/InviteShell";
 import { fetchGroupInvite, isUuid } from "@/lib/api";
+import { inviteMetadata } from "@/lib/invite-metadata";
 import { describeShare } from "@/lib/share";
+import { site } from "@/lib/site";
 
 /**
  * Public preview for `showplaces.app/group-invites/{shareId}`.
@@ -20,10 +22,28 @@ import { describeShare } from "@/lib/share";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Shared group",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({
+  params,
+}: PageProps<"/group-invites/[shareId]">): Promise<Metadata> {
+  const { shareId } = await params;
+  const result = isUuid(shareId) ? await fetchGroupInvite(shareId) : null;
+  const path = `/group-invites/${shareId}`;
+
+  if (result?.status !== "ok") {
+    return inviteMetadata({
+      title: "Shared group",
+      description: site.description,
+      path,
+    });
+  }
+
+  const { group, shareType, accessLevel } = result.shared;
+  return inviteMetadata({
+    title: group.title,
+    description: `${describeShare(shareType, accessLevel).label} on ${site.name}.`,
+    path,
+  });
+}
 
 export default async function GroupInvitePage({
   params,

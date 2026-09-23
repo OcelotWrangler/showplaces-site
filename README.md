@@ -71,6 +71,15 @@ Both invite routes are `force-dynamic`, `noindex`, and excluded from
 `sitemap.ts` and `robots.ts`. A share link is private; it should never be
 cached at the edge or indexed.
 
+**Link previews carry the shared item's title.** iMessage, Slack and friends
+read `og:title`, so both pages build their metadata in `generateMetadata` via
+`lib/invite-metadata.ts`, falling back to "Shared place" / "Shared group" when
+the invite cannot be loaded. Setting `openGraph` on a page replaces the
+layout's whole object and drops the image `app/opengraph-image.tsx` would
+otherwise attach, so that helper restates the site name, type and card image
+too. `lib/api.ts` wraps the invite fetches in React `cache`, so the metadata
+and the page share one call to Pharos.
+
 **The group page has no map.** `GroupInviteDTO` carries a bare `GroupDTO` —
 title, description, cover image — and no showplaces, so there are no
 coordinates to plot. If `GroupSharingService.getInvitePreview` ever returns the
