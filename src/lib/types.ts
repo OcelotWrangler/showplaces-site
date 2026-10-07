@@ -53,6 +53,8 @@ export interface Showplace {
 
 export interface Media {
   id: string;
+  /** Which showplace the photo belongs to, in an invite preview's `media`. */
+  showplaceId?: string | null;
   created: string;
   width?: number | null;
   height?: number | null;
@@ -75,15 +77,24 @@ export interface Group {
 }
 
 export interface SharedShowplace {
+  /** For a copy, the snapshot taken when it was sent. */
   showplace: Showplace;
+  media: Media[];
   shareType: ShareType;
   accessLevel: AccessLevel;
+  /** The sender, as they appear to others. Never an email. */
+  invitedByDisplayName: string;
 }
 
 export interface SharedGroup {
+  /** For a copy, the snapshot taken when it was sent. */
   group: Group;
+  /** The group's showplaces in order. */
+  showplaces: Showplace[];
+  media: Media[];
   shareType: ShareType;
   accessLevel: AccessLevel;
+  invitedByDisplayName: string;
 }
 
 /** `ShowplaceInviteDTO` / `GroupInviteDTO` — `shared` is absent when the invite is bad. */

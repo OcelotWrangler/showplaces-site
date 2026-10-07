@@ -2,11 +2,17 @@
   "applinks": {
     "details": [
       {
-        "appIDs": ["QXNDRYJCG4.app.showplaces.Showplaces"],
+        "appIDs": [
+          "QXNDRYJCG4.app.showplaces.Showplaces"
+        ],
         "components": [
           {
             "/": "/showplace-invites/*",
             "comment": "Open a shared showplace in the app. Handled by URLHandler."
+          },
+          {
+            "/": "/group-invites/*",
+            "comment": "Open a shared group in the app. Handled by URLHandler."
           },
           {
             "/": "/validate-email",

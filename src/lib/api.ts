@@ -94,3 +94,16 @@ export const fetchGroupInvite = cache(
   (shareId: string): Promise<InviteResult<SharedGroup>> =>
     fetchInvite<SharedGroup>("group-invites", shareId),
 );
+
+/**
+ * A photo from an invite, fetched through Pharos rather than from the media
+ * bucket, which is not public. The invite is the permission: Pharos serves
+ * only photos belonging to what the invite shares.
+ */
+export function inviteMediaUrl(
+  kind: "showplace-invites" | "group-invites",
+  shareId: string,
+  mediaId: string,
+): string {
+  return `${apiBaseUrl}/v1/${kind}/${shareId}/media/${mediaId}`;
+}

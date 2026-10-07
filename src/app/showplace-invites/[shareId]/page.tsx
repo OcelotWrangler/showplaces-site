@@ -74,12 +74,15 @@ export default async function ShowplaceInvitePage({
     );
   }
 
-  const { showplace, shareType, accessLevel } = result.shared;
+  const { showplace, shareType, accessLevel, invitedByDisplayName } =
+    result.shared;
   const share = describeShare(shareType, accessLevel);
 
   return (
     <InviteShell>
-      <p className="text-sm font-medium text-muted">{share.label}</p>
+      <p className="text-sm font-medium text-muted">
+        {share.label} by {invitedByDisplayName}
+      </p>
       <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
         {showplace.title}
       </h1>
