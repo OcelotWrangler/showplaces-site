@@ -11,6 +11,10 @@ import { site } from "@/lib/site";
  * Sentry). The previous version still described a contacts-geocoding app that
  * stored everything in iCloud, which had not been true for a long time.
  *
+ * The analytics section was checked against the TelemetryDeck SDK's source
+ * (2.14.2) in October 2026; showplaces-analytics.md lists everything it sends.
+ * Re-check it whenever the SDK is updated.
+ *
  * It is written from the design docs and the code, not by a lawyer. Read it
  * against what ships and confirm it lines up with the App Store privacy
  * nutrition label before submitting.
@@ -25,7 +29,7 @@ export const metadata: Metadata = {
 
 export default function Privacy() {
   return (
-    <ProsePage title="Privacy Policy" updated="September 2, 2026">
+    <ProsePage title="Privacy Policy" updated="October 9, 2026">
       <p>
         Showplaces is built around a simple idea: the places you save are yours.
         This policy describes what the app stores, what leaves your device, and
@@ -41,8 +45,11 @@ export default function Privacy() {
       <p>
         If you create an account, that same content is also stored on our
         servers so it can sync between your devices and be shared with people
-        you choose. Media files are stored in Amazon S3. Accounts are created
-        with Sign in with Apple; we never see or store a password.
+        you choose. Media files are stored in Amazon S3. You sign in with Apple
+        or with a one-time code we email you. There are no passwords, so we
+        never see or store one. Your account holds your email address and, if
+        you add them, a display name and profile picture. Location data is
+        removed from a profile picture before it is stored.
       </p>
 
       <h2>You do not need an account</h2>
@@ -73,6 +80,12 @@ export default function Privacy() {
         or keeps the recipient in sync with yours. Links can expire, and you can
         revoke access or remove a collaborator at any time.
       </p>
+      <p>
+        People you share with in the app see your display name and profile
+        picture, and you see theirs. Nobody else does, and your email address
+        is never shown to anyone. Opening a share link on the web shows what
+        was shared and the display name of the person who sent it.
+      </p>
 
       <h2>Analytics and crash reporting</h2>
       <p>
@@ -84,27 +97,68 @@ export default function Privacy() {
           Analytics are anonymous by design. A random identifier is generated
           per install — not your Apple ID, not an advertising identifier — and
           it is salted and hashed on your device before it is ever sent.
+          Deleting the app resets it.
         </li>
         <li>
           Analytics are never linked to your account, even if you are signed in.
         </li>
         <li>
-          Event data is limited to feature-level metadata such as app version,
-          plan tier, and locale. The names, descriptions, tags, and coordinates
-          of your places are never included.
+          Each event records which feature was used, along with technical
+          context: the app version, your device model and operating system
+          version, language and region settings, your time zone as an offset
+          from UTC (such as UTC−5), the time of day, accessibility settings
+          such as larger text or reduced motion, and simple usage counts such as
+          how many sessions you have had and how long they last. It also notes
+          whether you are signed in and whether you have Pro, but never which
+          account. The names, descriptions, tags, and
+          coordinates of your places are never included, and neither is your
+          location.
+        </li>
+        <li>
+          When you buy Showplaces Pro in the app, an event records the plan,
+          the price, and the country and currency of your App Store account.
+          Like every other event, it is never linked to your account.
         </li>
         <li>TelemetryDeck does not store IP addresses.</li>
       </ul>
       <p>
-        Crash reports contain diagnostic information about the failure — such as
-        a stack trace, the device model, and the app version — so bugs can be
-        fixed.
+        Crash and error reports contain diagnostic information about the
+        failure — such as a stack trace, the kind of error and where in the
+        app&rsquo;s code it happened, the device model and operating system
+        version, the app version, which of the app&rsquo;s network requests
+        failed with identifiers removed, and Apple&rsquo;s own reports of the
+        app freezing or overusing the processor or storage — so bugs can be
+        fixed. They never include what you were looking at or working on, such
+        as the names, notes or locations of your places. Each report
+        carries a random identifier for this install so repeated crashes can be
+        counted. It is not linked to your account, and no IP address is stored.
+        Reports never include screenshots or recordings of your screen.
       </p>
+
+      <h2>Purchases</h2>
+      <p>
+        Showplaces Pro is sold by Apple through the App Store. Apple handles
+        payment, and we never see your payment details or your Apple Account.
+      </p>
+      <ul>
+        <li>
+          To give Pro to your Showplaces account, the app sends our server the
+          record Apple signs for your subscription. We keep the plan, its
+          renewal and expiry dates, whether it was refunded, Apple&rsquo;s
+          identifier for the subscription, and which Showplaces account it
+          belongs to. Apple tells our server when the subscription renews,
+          lapses, or is refunded.
+        </li>
+        <li>
+          In a TestFlight beta build, the app sends Apple&rsquo;s signed record
+          of how it was installed, so testers get Pro.
+        </li>
+      </ul>
 
       <h2>Email</h2>
       <p>
-        If you create an account, we use SendGrid to send account email such as
-        address verification. We do not send marketing email.
+        If you create an account, we use SendGrid to send account email, such
+        as your sign-in codes. We do not send marketing email.
       </p>
 
       <h2>What we never do</h2>
@@ -121,6 +175,13 @@ export default function Privacy() {
         removes everything you own, including your places, groups, and uploaded
         media. Any live or collaborative links you created stop working and that
         content is removed from your collaborators&rsquo; libraries.
+      </p>
+      <p>
+        Deleting your account does not cancel a Showplaces Pro subscription,
+        which Apple bills: cancel it in your Apple Account&rsquo;s subscription
+        settings. The subscription&rsquo;s record is unlinked from your
+        account and kept, without anything identifying you, so a subscription
+        that is still active can be restored to a new account.
       </p>
       <p>
         Encrypted database backups are taken nightly and kept for a limited
